@@ -34,17 +34,7 @@ class ExampleAgent(BaseAgent):
                
                 # Penaliza pontos que estejam muito próximos de obstáculos
                 if safe_distance < safe_margin:
-                    # Verifica se o ponto está suficientemente próximo do objetivo
-                    if np.linalg.norm([x_next - goal[0], y_next - goal[1]]) < params['goal_tolerance']:
-                        # Ignora a penalização de safe_distance se estiver perto do objetivo
-                        print("entrou aqui", np.linalg.norm([x_next - goal[0], y_next - goal[1]]))
-                        score = dist_to_goal*1.2
-                        
-                    else:
-                        # Penaliza pontos muito próximos de obstáculos
                         score = dist_to_goal / safe_distance
-                        print("safe_distance", safe_distance)
-                        print("goalaqui", dist_to_goal)
                 else:
                     # Incentiva pontos seguros
                     score = dist_to_goal + safe_distance*0.5
@@ -54,7 +44,6 @@ class ExampleAgent(BaseAgent):
                 if score > best_score:
                     best_score = score
                     best_next_point = Point(x_next, y_next)
-
         return best_next_point
 
 
@@ -80,17 +69,20 @@ class ExampleAgent(BaseAgent):
                 goal = target
                 obstacles = [[obs.x, obs.y] for obs in self.opponents.values()] #lista de obstaculos
 
-                distanciasegura = 0.6 # distancia usada para poder usar ou nao oDWA (Dynamic Window Approach) evitando que ele fique muito lento ja que nao precisa rodar sempre
+                distanciasegura = 0.5 # distancia usada para poder usar ou nao oDWA (Dynamic Window Approach) evitando que ele fique muito lento ja que nao precisa rodar sempre
                 obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs.x, self.robot.y - obs.y]) < distanciasegura for obs in self.opponents.values()) 
                 # se tiver um obstaculo proximo ele roda o DWA
+                proximogol = any(np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.4 for obs in self.opponents.values())
+                if proximogol:
+                    next_point = Point(goal[0], goal[1])
                 if obistaculo_proximo:
                     # Parâmetros do DWA
                     params = {
-                        'max_distance': 0.4,  # Distância máxima a simular
+                        'max_distance': 0.31,  # Distância máxima a simular
                         'step_size': 0.2,  # Incremento de distância para pontos simulados
                         'num_directions': 36,  # Número de direções a considerar (360° dividido uniformemente)
                         'safe_distance': 0.4,  # Distância mínima segura de obstáculos
-                        'goal_tolerance': 0.6   # Distância para considerar que está suficientemente próximo do objetivo
+                        'goal_tolerance': 0.4   # Distância para considerar que está suficientemente próximo do objetivo
                     }
 
 
