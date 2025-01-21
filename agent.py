@@ -72,25 +72,27 @@ class ExampleAgent(BaseAgent):
                 distanciasegura = 0.5 # distancia usada para poder usar ou nao oDWA (Dynamic Window Approach) evitando que ele fique muito lento ja que nao precisa rodar sempre
                 obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs.x, self.robot.y - obs.y]) < distanciasegura for obs in self.opponents.values()) 
                 # se tiver um obstaculo proximo ele roda o DWA
-                proximogol = any(np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.4 for obs in self.opponents.values())
+                proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.5 
+                print(proximogol)
                 if proximogol:
                     next_point = Point(goal[0], goal[1])
-                if obistaculo_proximo:
-                    # Parâmetros do DWA
-                    params = {
-                        'max_distance': 0.31,  # Distância máxima a simular
-                        'step_size': 0.2,  # Incremento de distância para pontos simulados
-                        'num_directions': 36,  # Número de direções a considerar (360° dividido uniformemente)
-                        'safe_distance': 0.4,  # Distância mínima segura de obstáculos
-                        'goal_tolerance': 0.4   # Distância para considerar que está suficientemente próximo do objetivo
-                    }
-
-
-
-                    # Calcula o próximo ponto seguro com o DWA
-                    next_point = self.dwa_navigation(goal, obstacles, params)
                 else:
-                    next_point = Point(goal[0], goal[1]) #
+                    if obistaculo_proximo:
+                        # Parâmetros do DWA
+                        params = {
+                            'max_distance': 0.31,  # Distância máxima a simular
+                            'step_size': 0.2,  # Incremento de distância para pontos simulados
+                            'num_directions': 36,  # Número de direções a considerar (360° dividido uniformemente)
+                            'safe_distance': 0.4,  # Distância mínima segura de obstáculos
+                            'goal_tolerance': 0.4   # Distância para considerar que está suficientemente próximo do objetivo
+                        }
+
+                    
+
+                        # Calcula o próximo ponto seguro com o DWA
+                        next_point = self.dwa_navigation(goal, obstacles, params)
+                    else:
+                        next_point = Point(goal[0], goal[1]) #
 
                 if next_point:
                     next_point = Point(next_point[0], next_point[1])  # Converte para objeto Point
