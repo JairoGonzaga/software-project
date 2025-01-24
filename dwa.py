@@ -16,7 +16,6 @@ def dwa_navigation(self, goal, obstacles, params):
         for d in np.arange(step_size, max_distance + step_size, step_size):  # Distâncias incrementais
             for angle in np.linspace(-np.pi, np.pi, params['num_directions']):  # Ângulos 360°
 
-                # Calcula o próximo ponto
                 x_next = pos[0] + d * np.cos(angle)
                 y_next = pos[1] + d * np.sin(angle)
 
@@ -29,9 +28,9 @@ def dwa_navigation(self, goal, obstacles, params):
                
                 # Penaliza pontos que estejam muito próximos de obstáculos
                 if safe_distance < safe_margin:
-                    score = -dist_to_goal-1 / safe_distance  # Penalização inversa da distância
+                    score = -dist_to_goal-1 / safe_distance*1.3  # Penalização inversa da distância
                 else:
-                    score = -dist_to_goal + safe_distance*0.6  # Incentiva pontos seguros
+                    score = -dist_to_goal + safe_distance*0.78213  # Incentiva pontos seguros
 
                 # Atualiza o melhor ponto
                 if score > best_score:
