@@ -13,8 +13,8 @@ class ExampleAgent(BaseAgent):
     def verificar_obstaculos_proximos(self, goal, obstacles):#função auxiliar para verificar obstáculos próximos, usada em decidir prox ponto
         distanciasegura = 0.465743  # Distância usada para considerar um obstáculo próximo
         obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs[0], self.robot.y - obs[1]]) < distanciasegura for obs in obstacles)
-        proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.25 # se o robô estiver próximo do objetivo
-        obstaculo_muito_proximo = any(np.linalg.norm([goal[0] - obs[0], goal[1] - obs[1]]) < 0.25 for obs in obstacles) # se o obstáculo estiver muito próximo do objetivo
+        proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.28 # se o robô estiver próximo do objetivo
+        obstaculo_muito_proximo = any(np.linalg.norm([goal[0] - obs[0], goal[1] - obs[1]]) < 0.185 for obs in obstacles) and obistaculo_proximo # se o obstáculo estiver muito próximo do objetivo
 
         return obistaculo_proximo, proximogol, obstaculo_muito_proximo
 
@@ -23,7 +23,6 @@ class ExampleAgent(BaseAgent):
         Decide o próximo ponto para o robô se mover.
         """
         obistaculo_proximo, proximogol, obstaculo_muito_proximo = self.verificar_obstaculos_proximos(goal, obstacles) #valores auxiliares para decidir o próximo ponto
-        ultimoxy=Point(0,0)
         if proximogol:# se o robô estiver próximo do objetivo, vá diretamente para o objetivo
             return Point(goal[0], goal[1])
         else:
@@ -33,21 +32,22 @@ class ExampleAgent(BaseAgent):
                     'max_distance': 0.2891323789,  # Distância máxima a simular
                     'step_size': 0.2,  # Incremento de distância para pontos simulados
                     'num_directions': 20,  # Número de direções a considerar (360° dividido uniformemente)
-                    'safe_distance': 0.239482,  # Distância mínima segura de obstáculos
+                    'safe_distance': 0.2717,  # Distância mínima segura de obstáculos
                     'goal_tolerance': 0.12   # Distância para considerar que está suficientemente próximo do objetivo
                 }
 
                 if obstaculo_muito_proximo:
                     self.avoidance_counter += 1
+                    print(1)
                 else:
                     self.avoidance_counter = 0
 
                 # Se o contador exceder o limite, vá diretamente para o objetivo
-                if self.avoidance_counter > 200: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
+                if self.avoidance_counter > 300: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
                     return Point(goal[0], goal[1])
                 else:
                     # Calcula o próximo ponto seguro com o DWA
-                    return dwa_navigation(self, goal, obstacles, params)
+                        return dwa_navigation(self, goal, obstacles, params) 
             else:# se tiver livre, ele vai ao ponto
                 return Point(goal[0], goal[1])
 

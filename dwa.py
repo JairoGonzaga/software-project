@@ -28,9 +28,9 @@ def dwa_navigation(self, goal, obstacles, params):
                
                 # Penaliza pontos que estejam muito próximos de obstáculos
                 if safe_distance < safe_margin:
-                    score = -dist_to_goal-1 / safe_distance*1.3  # Penalização inversa da distância
+                    score = -dist_to_goal-1 / safe_distance  # Penalização inversa da distância
                 else:
-                    score = -dist_to_goal + safe_distance*0.78213  # Incentiva pontos seguros
+                    score = -dist_to_goal + safe_distance*0.7  # Incentiva pontos seguros
 
                 # Atualiza o melhor ponto
                 if score > best_score:
