@@ -18,10 +18,10 @@ class ExampleAgent(BaseAgent):
             self.position_history.pop(0)
         
     def verificar_obstaculos_proximos(self, goal, obstacles):#função auxiliar para verificar obstáculos próximos, usada em decidir prox ponto
-        distanciasegura = 0.465743  # Distância usada para considerar um obstáculo próximo
+        distanciasegura = 0.565743  # Distância usada para considerar um obstáculo próximo
         obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs[0], self.robot.y - obs[1]]) < distanciasegura for obs in obstacles) # se o obstáculo estiver próximo do robo
-        proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.28 # se o robô estiver próximo do objetivo
-        obstaculo_muito_proximo = any(np.linalg.norm([goal[0] - obs[0], goal[1] - obs[1]]) < 0.185 for obs in obstacles) and obistaculo_proximo # se o obstáculo estiver muito próximo do objetivo
+        proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.32 # se o robô estiver próximo do objetivo
+        obstaculo_muito_proximo = any(np.linalg.norm([goal[0] - obs[0], goal[1] - obs[1]]) < 0.185 for obs in obstacles) and proximogol # se o obstáculo estiver muito próximo do objetivo
 
         return obistaculo_proximo, proximogol, obstaculo_muito_proximo
 
@@ -38,22 +38,17 @@ class ExampleAgent(BaseAgent):
                 # Parâmetros do DWA
                 params = {
                     'max_distance': 0.2891323789,  # Distância máxima a simular
-                    'step_size': 0.2,  # Incremento de distância para pontos simulados
+                    'step_size': 0.243,  # Incremento de distância para pontos simulados
                     'num_directions': 20,  # Número de angulos a considerar (360° dividido uniformemente)
                     'safe_distance': 0.282717,  # Distância mínima segura de obstáculos
                 }
 
-                if obstaculo_muito_proximo:# se o obstáculo estiver muito próximo do objetivo, aumente o contador de evitamento de obstáculos
-                    self.contador_objparado += 1
-                else:
-                    self.contador_objparado = 0
-
                 # Se o contador exceder o limite, vá diretamente para o objetivo
-                if self.contador_objparado > 30: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
+                if obstaculo_muito_proximo: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
                     return Point(goal[0], goal[1])
                 else:
                     # Calcula o próximo ponto seguro com o DWA
-                        return dwa_navigation(self, goal, obstacles, params) 
+                    return dwa_navigation(self, goal, obstacles, params) 
             else:# se tiver livre, ele vai ao ponto
                 return Point(goal[0], goal[1])
 

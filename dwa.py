@@ -1,5 +1,6 @@
 from utils.ssl.Navigation import Navigation, Point
 from utils.ssl.base_agent import BaseAgent
+import pygame as pygame
 import numpy as np
 
 def dwa_navigation(self, goal, obstacles, params):
@@ -43,5 +44,6 @@ def dwa_navigation(self, goal, obstacles, params):
             if score > best_score:
                 best_score = score
                 best_next_point = Point(x_next, y_next)
+                
 
     return best_next_point
