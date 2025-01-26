@@ -8,20 +8,28 @@ import numpy as np
 class ExampleAgent(BaseAgent):
     def __init__(self, id=0, yellow=False):
         super().__init__(id, yellow)
-        self.avoidance_counter = 0  # Inicializa o contador de evitamento de obstáculos
+        self.contador_objparado = 0  # Inicializa o contador de evitamento de obstáculos
+        self.position_history = [] # Inicializa o histórico de posições
+        self.stuck_time = 2  # Tempo em segundos para considerar que está preso
+
+    def Updt_pos(self, position):#armazena a posição atual do robô
+        self.position_history.append(position)
+        if len(self.position_history) > self.stuck_time * 10: 
+            self.position_history.pop(0)
         
     def verificar_obstaculos_proximos(self, goal, obstacles):#função auxiliar para verificar obstáculos próximos, usada em decidir prox ponto
         distanciasegura = 0.465743  # Distância usada para considerar um obstáculo próximo
-        obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs[0], self.robot.y - obs[1]]) < distanciasegura for obs in obstacles)
+        obistaculo_proximo = any(np.linalg.norm([self.robot.x - obs[0], self.robot.y - obs[1]]) < distanciasegura for obs in obstacles) # se o obstáculo estiver próximo do robo
         proximogol = np.linalg.norm([self.robot.x - goal[0], self.robot.y - goal[1]]) < 0.28 # se o robô estiver próximo do objetivo
         obstaculo_muito_proximo = any(np.linalg.norm([goal[0] - obs[0], goal[1] - obs[1]]) < 0.185 for obs in obstacles) and obistaculo_proximo # se o obstáculo estiver muito próximo do objetivo
 
         return obistaculo_proximo, proximogol, obstaculo_muito_proximo
 
     def decidir_proximo_ponto(self, goal, obstacles):
-        """
-        Decide o próximo ponto para o robô se mover.
-        """
+        # Atualiza a posição atual do robô
+        current_position = [self.robot.x, self.robot.y]
+        self.Updt_pos(current_position)
+
         obistaculo_proximo, proximogol, obstaculo_muito_proximo = self.verificar_obstaculos_proximos(goal, obstacles) #valores auxiliares para decidir o próximo ponto
         if proximogol:# se o robô estiver próximo do objetivo, vá diretamente para o objetivo
             return Point(goal[0], goal[1])
@@ -31,19 +39,17 @@ class ExampleAgent(BaseAgent):
                 params = {
                     'max_distance': 0.2891323789,  # Distância máxima a simular
                     'step_size': 0.2,  # Incremento de distância para pontos simulados
-                    'num_directions': 20,  # Número de direções a considerar (360° dividido uniformemente)
-                    'safe_distance': 0.2717,  # Distância mínima segura de obstáculos
-                    'goal_tolerance': 0.12   # Distância para considerar que está suficientemente próximo do objetivo
+                    'num_directions': 20,  # Número de angulos a considerar (360° dividido uniformemente)
+                    'safe_distance': 0.282717,  # Distância mínima segura de obstáculos
                 }
 
-                if obstaculo_muito_proximo:
-                    self.avoidance_counter += 1
-                    print(1)
+                if obstaculo_muito_proximo:# se o obstáculo estiver muito próximo do objetivo, aumente o contador de evitamento de obstáculos
+                    self.contador_objparado += 1
                 else:
-                    self.avoidance_counter = 0
+                    self.contador_objparado = 0
 
                 # Se o contador exceder o limite, vá diretamente para o objetivo
-                if self.avoidance_counter > 300: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
+                if self.contador_objparado > 30: #isso é uma tentativa de evitar que o robô fique preso em um loop de evitamento de obstáculos
                     return Point(goal[0], goal[1])
                 else:
                     # Calcula o próximo ponto seguro com o DWA
@@ -51,7 +57,7 @@ class ExampleAgent(BaseAgent):
             else:# se tiver livre, ele vai ao ponto
                 return Point(goal[0], goal[1])
 
-    def decision(self):
+    def decision(self):# função de gerenciamento geral do robo
         """
         Função que decide o que o robô vai fazer.
         """
